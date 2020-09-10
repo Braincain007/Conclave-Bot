@@ -1,0 +1,491 @@
+import discord
+import math
+import random
+import asyncio
+from discord import Game
+from discord.ext.commands import Bot
+from lxml import html
+import requests
+import numpy
+import urllib
+from decimal import *
+from requests_html import HTML
+from requests_html import HTMLSession
+import os
+import keyboard as k
+import datetime
+
+BOT_PREFIX = ("c?", "c!", "C!", "C?")
+file = open('Token.txt', 'r') 
+TOKEN = file.read() 
+
+#Get at discordapp.com/developers/applications/me
+
+client = Bot(command_prefix=BOT_PREFIX)
+global Sten
+
+@client.command(name='binary',
+                description='pop in a number and get its binary form',
+                brief='get binary form',)
+async def binary(ctx, num):
+    original = num
+    num = int(num)
+    numbers = []
+    while num>=1:
+        
+        if num%2==0:
+            numbers.append('0')
+            #print(str(int(num)))
+            num=(int(num/2))
+            
+            
+        elif (num%2)!=0:
+            numbers.append('1')
+            #print(str(int(num)))
+            num=(int((num/2)-0.5))
+            
+
+    numbers.reverse()
+    msg=(''.join(map(str, numbers)))
+    await ctx.send('The binary form of '+str(original)+' is '+msg)
+
+@client.command(name='prime',
+                description='use to see if number is prime',
+                brief='see if number prime')
+async def prime(ctx, number):
+    if len(number) >= 200:
+        await ctx.send("Large numbers may take a few seconds to compute!")
+        
+    Prime = True
+    n = float(number)
+    # This is checked so that we can skip  
+    # middle five numbers in below loop 
+    if (n % 2 == 0 or n % 3 == 0) : 
+        Prime = False
+  
+    i = 5
+    Factor=None
+    while(i * i <= n) : 
+        if (n % i == 0) : 
+            Prime = False
+            Factor=str(i)
+            break
+        if (n % (i + 2) == 0):
+            Prime = False
+            Factor=str(i+2)
+            break
+        i = i + 6
+        
+    if (n <= 1) : 
+        Prime = False
+    if float(number).is_integer() == False:
+        Prime = False
+        
+    if (n == 3) or (n== 2): 
+        Prime = True
+  
+    #print(n)
+    if Prime == True:
+        await ctx.send(number + " is Prime.")
+    else:
+        if Factor!=None:
+            await ctx.send(number + " is not Prime. Its smallest factor is "+Factor+".")
+        else:
+            await ctx.send(number + " is not Prime.")
+
+    print(str(int(number)/int(Factor)))
+
+@client.command(name='roll',
+                aliases=['r'],
+                description='use this to roll dice',
+                brief='dice roller, ex: c!roll 1d20 +5 adv')
+async def roll(ctx, dice, mod=None, query=None):
+    dice = str(dice).replace("D","d")
+    (num, dtype) = dice.split("d")
+    if num == '':
+        num = 1
+    if mod == None:
+        mod = 0
+    else:
+        if mod == 'adv' or mod == 'advantage' or mod == 'disadv' or mod == 'disadvantage' or mod == 'crit':
+            query = mod
+            mod = 0
+ 
+    #print(num)
+    #print(dtype)
+    #print(mod)
+    #print(query)
+    rolls = []
+    rolls2 = []
+    for x in range(int(num)):
+        result = random.randint(1, int(dtype))
+        rolls.append(result)
+        result = random.randint(1, int(dtype))
+        rolls2.append(result)
+
+    if query == 'adv' or query == 'advantage':
+        if sum(rolls2) > sum(rolls):
+            outcome = sum(rolls2)
+            winner = rolls2
+            loser = rolls
+        else:
+            outcome = sum(rolls)
+            winner = rolls
+            loser = rolls2
+            
+    if query == 'disadv' or query == 'disadvantage':
+        if sum(rolls2) < sum(rolls):
+            outcome = sum(rolls2)
+            winner = rolls2
+            loser = rolls
+        else:
+            outcome = sum(rolls)
+            winner = rolls
+            loser = rolls2
+
+    if query == 'crit':
+        outcome = (sum(rolls) * 2)
+        winner = (rolls)
+
+    if query == None:
+        outcome = sum(rolls)
+        winner = rolls
+
+    '''print(rolls)
+    print(rolls2)
+    print(outcome)
+    print(winner)'''
+    total = (outcome + int(mod))
+    if query == 'crit':
+        if len("```" + str(winner) + " * 2 = " + str(outcome) + '\n' + str(outcome) + ' + ' + str(int(mod)) +" = " + str(total) + "```") > 2000:
+            await ctx.send("This request is too large for Discord's 2000 Character limit to handle!")
+        else:
+            await ctx.send("```" + str(winner) + " * 2 = " + str(outcome) + '\n' + str(outcome) + ' + ' + str(int(mod)) +" = " + str(total) + "```")
+    elif query == 'adv' or query == 'advantage' or query == 'disadv' or query == 'disadvantage':
+        if len("```" + str(winner) + " and " +str(loser) + '\n' + str(winner)+ ' + ' + str(int(mod)) +" = " + str(total) + "```") > 2000:
+             await ctx.send("This request is too large for Discord's 2000 Character limit to handle!")
+        else:
+            await ctx.send("```" + str(winner) + " and " +str(loser) + '\n' + str(winner)+ ' + ' + str(int(mod)) +" = " + str(total) + "```")
+    else:
+        if len("```" + str(winner) + " + " + str(int(mod)) +" = " + str(total) + "```") > 2000:
+            await ctx.send("This request is too large for Discord's 2000 Character limit to handle!")
+        else:
+            await ctx.send("```" + str(winner) + " + " + str(int(mod)) +" = " + str(total) + "```")
+
+
+
+
+
+@client.command(name='8ball',
+                aliases=['8b','eight_ball','eightball'],
+                description="Answers a yes/no question.",
+                brief="Answers from the beyond.")
+async def eight_ball(ctx):
+    possible_responses = [
+        'That is a resounding no',
+        'It is not looking likely',
+        'Too hard to tell',
+        'It is quite possible',
+        'Definitely',
+    ]
+    await ctx.send(random.choice(possible_responses) + ", " + ctx.message.author.mention)
+
+@client.command(name='ban',)
+async def ban(ctx, reason=None, user=None):
+    user_list = []
+
+    for member in ctx.message.guild.members:
+        user_list.append(str(member.mention))
+
+    if reason == None:
+        if user == None:
+            await ctx.send("@here, " + (random.choice(user_list)) + " " + "has been banned.")
+        else:
+            await ctx.send("@here, " + user + " " + "has been banned.")
+    else:
+        if user == None:
+            await ctx.send("@here, " + (random.choice(user_list)) + " " + "has been banned " + reason + ".")
+        else:
+            await ctx.send("@here, " + user + " " + "has been banned " + reason + ".")
+    
+
+
+@client.command(name='chance',
+                description="Randomly picks someone to give the big gay",
+                brief="Gives gay",)
+async def chance(ctx):
+
+    user_list = []
+
+    for member in ctx.message.guild.members:
+        user_list.append(str(member.display_name))
+
+    await ctx.send((random.choice(user_list)) + " " + "has the big gay!")
+    
+@client.command(name='fib',
+                description="Gets the certain iteration of the fibonacci sequence",
+                brief="find out what is in X place in fibbonacci sequence (use c!fib X)")
+async def fib(ctx, number):
+    num = int(number)
+    x=1
+    y=0
+    z=0
+    for i in range(num):
+        z=(x+y)
+        x=y
+        y=z
+    if len(str(z)) > 2000:
+        await ctx.send("This request is too large for Discord's 2000 character limit to handle!")
+    else:
+        await ctx.send(z)
+
+@client.command(name='dead',
+                description="Proclaims how you are already dead.",
+                brief="***Omae wa mou shindeiru***")
+async def dead(ctx):
+    msg = '***Omae wa mou shindeiru***'
+    await ctx.send(msg + ' ' + ctx.message.author.mention)
+
+
+@client.command(name='bot',
+                description='Rings the bot')
+async def bot(ctx):
+    msg = 'You Rang?'
+    await ctx.send(msg + ' ' + ctx.message.author.mention)
+
+@client.command(name='bitcoin',
+                aliases=['bc'],
+                description="Checks the current price of bitcoin.",
+                brief="Bitcoin Price",)
+async def bitcoin(ctx):
+    url = 'https://api.coindesk.com/v1/bpi/currentprice/BTC.json'
+    response = requests.get(url)
+    value = response.json()['bpi']['USD']['rate']
+    await ctx.send("Bitcoin price is: $" + value)
+    url.close()
+
+@client.command(name='funfact',
+                aliases=['ff'],
+                description="Gives a fun fact.",
+                brief="Funfact")
+async def funfact(ctx):
+    session = HTMLSession()
+    url = session.get('http://mentalfloss.com/api/facts')
+    fact = url.json()[0]['fact']
+    #print(fact)
+    fact = fact.replace('</em>','*')
+    fact = fact.replace('<em>','*')
+    #print(fact)
+    await ctx.send("Fun Fact: " + fact)
+    url.close()
+    
+@client.command(name='pewdiepie',
+                aliases=['pew','pdp','pewds','pewd'],
+                description="Gives the sub count of Pewdiepie",
+                brief="Pewdiepie")
+async def pewdiepie(ctx):
+    session = HTMLSession()
+    url = session.get('https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw')
+    sub = int(url.json())
+    subint = format(sub, ',d')
+    substr = str(subint)
+    await ctx.send("Pewdiepie has " + substr + " subscribers.")
+    url.close()
+
+@client.command(name='pvts',
+                description="Difference between Pewdiepie and T-Series",
+                brief="Pewdiepie vs T-Series")
+async def pvts(ctx):
+    session = HTMLSession()
+    pewdurl = session.get('https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw')
+    pewd = int(pewdurl.json())
+    tgayurl = session.get('https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA')
+    tgay = int(tgayurl.json())
+    diff = (pewd - tgay)
+    if diff < 0:
+        winning="T-Gay is in the lead :("
+    else:
+        winning="Pewdiepie is still ahead of T-Series!"
+    diffint = format(diff, ',d')
+    diffstr = str(diffint)
+    await ctx.send("There are " + diffstr + " subscribers between Pewdiepie and T-Series. " + winning)
+
+@client.command(name='per',
+               description="Finds how many steps of multiplicative persistence that your number has",
+               brief="multiplicative persistence")
+async def per(ctx, n, steps = 0):
+    while len(str(n))> 1:
+        await ctx.send(n)
+        #print(n)
+        steps += 1
+        digits = [int(i) for i in str(n)]
+        result = 1
+        #print(n)
+        for j in digits:
+            result *= j
+        n = result
+        #print(result)
+
+    else:
+        await ctx.send(n)
+        #print(n)
+        await ctx.send('Total Steps: ' + str(steps))
+        #print('Total Steps: ' + str(steps))
+
+
+'''
+@client.command(name='sten',
+               description="Virtual Stenographer",
+               brief="Virtual Stenographer")
+async def sten(ctx, state=None):
+    state = str(state).lower()
+    if state=="on":
+        Sten=True
+        await ctx.send("Sten On")
+    elif state=="off":
+        Sten=False
+    else:
+        await ctx.send(state)
+    
+
+@client.event
+async def on_message(message):
+    if Sten==True:
+        if message.author != client.user:
+            sten_doc = (str(message.guild.name) + "Sten Doc" + (".txt"))
+            F = open(server_doc, "a+")
+            F.close()
+            currentDT = datetime.datetime.now()
+            with open(sten_doc, "r+") as File:
+                File.write(str(currentDT.strftime("%Y-%m-%d %I:%M:%S %p"))+ ' ' + str(message.author) + ': ' + message)
+
+
+    F.close()
+
+    await client.process_commands(message)
+'''
+
+@client.command(name='acr',
+                description="Lets you add a certain word to the react list",
+                brief="Add Custom Reaction c!acr [\"input\"][reaction]")
+async def acr(ctx, word, *, react):
+    #(word, react) = Input.split(";")
+    #print(word)
+    #print(react)
+    worddict = {}
+    server_doc = (str(ctx.guild.name) + (".txt"))
+    with open(server_doc, "a+") as File:
+        for line in File:
+            (key,val) = line.split("; ")
+            worddict[(key.lower())] = val
+            
+        #print(worddict)
+        #print(word)
+        #print(react)
+        if word.lower() in worddict:
+            await ctx.send("here")
+            #print('here')
+        else:
+            await ctx.send("Not Found: Adding Now")
+            File = open(server_doc, "a+")
+            File.write(word.lower() + "; " + react + "\n")
+            File.close()
+            await ctx.send("Done Adding")
+    File.close()
+
+@client.command(name='reactions',
+                aliases=['react'],
+                description="Displays the React list",
+                brief="Displays Reactions")
+async def reactions(ctx):
+    '''worddict = {}
+    with open("ACR_words.txt", "r") as File:
+        for line in File:
+            await ctx.send("`\n" + line + "\n`")'''
+    server_doc = (str(ctx.guild.name) + (".txt"))
+    File = open(server_doc,'r+')
+    reacts = File.read()
+    await ctx.send("```\n" +"[Input; Reaction]\n"+ reacts + "\n```")
+    File.close()
+
+'''@client.command(name='acrdel',
+                description="Lets you delete a certain word to the react list",
+                brief="Add Custom Reaction")
+async def acrdel(Input):
+    (word,react) = Input.split(";")
+    #print(word)
+    #print(react)
+    worddict = {}
+    with open("ACR_words.txt", "r") as File:
+        for line in File:
+            (key,val) = line.split("; ")
+            worddict[(key)] = val
+            
+        #print(worddict)
+        
+        if word in worddict:
+            await ctx.send("here")
+            print('here')
+        else:
+            await ctx.send("Not Found: Adding Now")
+            File = open("ACR_words.txt", "a")
+            File.write(word + ";" + react + "\n")
+            File.close()
+            await ctx.send("Done Adding")'''
+
+@client.event
+async def on_message(message):
+    
+    if message.author != client.user:
+        worddict = {}
+        server_doc = (str(message.guild.name) + (".txt"))
+        F = open(server_doc, "a+")
+        F.close()
+        with open(server_doc, "r+") as File:
+            for line in File:
+                (key,val) = line.split("; ")
+                worddict[(key)] = val
+                if key.lower() in message.content.lower():
+                        msg = worddict[key]
+                        #print(msg)
+                        await message.channel.send(msg)
+        File.close()           
+    '''if (message.author.name == 'IcarusLSU') and (str(message.guild.id) == str(546828969253666818)):
+        words = message.content.split(' ')
+        # EOW = every other word
+        eow = words[1::2]
+        for eword in eow:
+            pos = words.index(eword)
+            words.pop(pos)
+            session = HTMLSession()
+            url = session.get('https://randomword.com')
+            randword = url.html.find('div#random_word', first=True)
+            word = randword.html.replace('<div id="random_word">','')
+            word = word.replace('</div>','')
+            words.insert(int(pos),word)
+            url.close()
+            seperator = ' '
+            sentence = (seperator.join(words))
+
+        await message.channel.send(sentence)'''
+    await client.process_commands(message)
+
+            
+
+@client.event
+async def on_ready():
+    await client.change_presence(activity=Game(name="with c!"))
+    print("Logged in as " + client.user.name)
+    
+async def list_servers():
+    await client.wait_until_ready()
+    while not client.is_closed():
+        print("Current servers:")
+        for guild in client.guilds:
+            print(guild.name)
+
+        await asyncio.sleep(6000)
+
+
+client.loop.create_task(list_servers())
+client.run(TOKEN)
