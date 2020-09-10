@@ -14,7 +14,7 @@ import datetime
 
 BOT_PREFIX = ("c?", "c!", "C!", "C?")
 
-TOKEN = 'NzUzNDEyNzExNDQxODkxMzUw.X1l0RA.wxXm8K39bpbKte1uYn1o0vDk6X4'
+TOKEN = #Token Goes Here
 
 #Get at discordapp.com/developers/applications/me
 
