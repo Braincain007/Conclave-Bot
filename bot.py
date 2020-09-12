@@ -13,9 +13,11 @@ import keyboard as k
 import datetime
 import string
 
+import secret
+
 BOT_PREFIX = ("c?", "c!", "C!", "C?")
 
-TOKEN = #Token Goes here
+TOKEN = secret.DISCORD_TOKEN
 
 #Get at discordapp.com/developers/applications/me
 
