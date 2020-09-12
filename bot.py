@@ -97,7 +97,7 @@ async def addplayer(ctx, key: str, user: Member):
     brief="Remove Player from Group")
 async def removeplayer(ctx, key: str, user: Member):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
-        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Remove a Member from the Group."%(key))
         return
 
     group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
