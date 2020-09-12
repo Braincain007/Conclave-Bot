@@ -25,7 +25,8 @@ GROUP_CATEGORY = "GROUPS"
 
 @client.command(name="creategroup",
     descriptions="Creates a Private RPG Group with a Text+Voice Channel",
-    brief="Create Group")
+    brief="Create Group",
+    aliases=["cgroup"])
 async def creategroup(ctx):
     while True:
         # Recreate Key until we know it doesn't exist already
@@ -59,7 +60,8 @@ async def creategroup(ctx):
 
 @client.command(name="deletegroup",
     descriptions="Deletes the RPG Group, and Accompanying Roles and Channels",
-    brief="Delete Group")
+    brief="Delete Group",
+    aliases=["delgroup"])
 async def deletegroup(ctx, key: str):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Delete the Group."%(key))
@@ -80,7 +82,8 @@ async def deletegroup(ctx, key: str):
 
 @client.command(name="addplayer",
     descriptions="Give a User the Player Role for an RPG Group",
-    brief="Add Player to Group")
+    brief="Add Player to Group",
+    aliases=["groupadd"])
 async def addplayer(ctx, key: str, user: Member):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
@@ -94,7 +97,8 @@ async def addplayer(ctx, key: str, user: Member):
 
 @client.command(name="removeplayer",
     descriptions="Remove the Player Role for an RPG Group from a User",
-    brief="Remove Player from Group")
+    brief="Remove Player from Group",
+    aliases=["groupremove"])
 async def removeplayer(ctx, key: str, user: Member):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Remove a Member from the Group."%(key))
