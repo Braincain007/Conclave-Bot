@@ -1,17 +1,12 @@
-from discord import *
-import math
+#!/bin/env python3.8
+
+import string
 import random
 import asyncio
+
+from discord import *
 from discord import Game
 from discord.ext.commands import Bot
-
-import numpy
-import urllib
-from decimal import *
-import os
-import keyboard as k
-import datetime
-import string
 
 # Local secret file
 import secret
