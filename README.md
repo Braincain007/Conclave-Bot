@@ -12,10 +12,10 @@ Allow RPG Groups within Conclave to have a private space to run their RPG Sessio
 ## Development Setup
 
 ### Prerequisite
-Python3.8
-pip
-virtualen (optional)
-Discord Application with Bot
+* Python3.8
+* pip
+* virtualen (optional)
+* Discord Application with Bot
 
 ### Install Dependancies
 Install the Library Dependancies from the `requirements.txt` file in the Repo. Preferably inside a Python Virtual Environemnt.
