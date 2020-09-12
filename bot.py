@@ -137,6 +137,101 @@ async def removeplayer(ctx, key: str, user: Member):
 
     await ctx.send("Player %s Removed from %s Group."%(user.name, key))
 
+@client.command(name="addtextchannel",
+    descriptions="Add a Text Channel to an RPG Group",
+    brief="Add Text Channel",
+    aliases=["addtext"])
+async def addtextchannel(ctx, key: str, name: str):
+    group_text_channel = "group-%s-%s"%(key, name)
+
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may add Channels to the Group."%(key))
+        return
+
+    if utils.get(ctx.guild.text_channels, name=group_text_channel) != None:
+        await ctx.send("Text Channel %s Already Exists for %s Group."%(group_text_channel, key))
+        return
+
+    group_category = utils.get(ctx.guild.categories, name=GROUP_CATEGORY)
+    group_bot_role = utils.get(ctx.guild.roles, name=GROUP_BOT_ROLE)
+    group_gm_role = utils.get(ctx.guild.roles, name=GROUP_GM_ROLE%(key))
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+
+    group_overwrites = {
+        ctx.guild.default_role: PermissionOverwrite(read_messages=False),
+        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_player_role: PermissionOverwrite(read_messages=True),
+        group_bot_role: PermissionOverwrite(read_messages=True),
+        client.user: PermissionOverwrite(read_messages=True)
+    }
+
+    await ctx.guild.create_text_channel(
+        name=group_text_channel, 
+        overwrites=group_overwrites, 
+        category=group_category)
+    
+    await ctx.send("Text Channel %s Added to %s Group."%(group_text_channel, key))
+
+@client.command(name="removetextchannel",
+    descriptions="Remove a Text Channel from an RPG Group",
+    brief="Remove Text Channel",
+    aliases=["deltext"])
+async def removetextchannel(ctx, key: str, channel: TextChannel):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may remove Channels from the Group."%(key))
+        return
+
+    await channel.delete()
+    
+    await ctx.send("Text Channel %s Removed from %s Group."%(channel.name, key))
+
+@client.command(name="addvoicechannel",
+    descriptions="Add a Voice Channel to an RPG Group",
+    brief="Add Voice Channel to Group",
+    aliases=["groupaddvoice"])
+async def addvoicechannel(ctx, key: str, name: str):
+    group_voice_channel = "group-%s-%s"%(key, name)
+
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may add Channels to the Group."%(key))
+        return
+
+    if utils.get(ctx.guild.voice_channels, name=group_voice_channel) != None:
+        await ctx.send("Voice Channel %s Already Exists for %s Group."%(group_voice_channel, key))
+        return
+
+    group_category = utils.get(ctx.guild.categories, name=GROUP_CATEGORY)
+    group_bot_role = utils.get(ctx.guild.roles, name=GROUP_BOT_ROLE)
+    group_gm_role = utils.get(ctx.guild.roles, name=GROUP_GM_ROLE%(key))
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+
+    group_overwrites = {
+        ctx.guild.default_role: PermissionOverwrite(read_messages=False),
+        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_player_role: PermissionOverwrite(read_messages=True),
+        group_bot_role: PermissionOverwrite(read_messages=True),
+        client.user: PermissionOverwrite(read_messages=True)
+    }
+
+    group_voice_channel = await ctx.guild.create_voice_channel(
+        name=group_voice_channel, 
+        overwrites=group_overwrites, 
+        category=group_category)
+    
+    await ctx.send("Voice Channel %s Added to %s Group."%(group_voice_channel, key))
+
+@client.command(name="removevoicechannel",
+    descriptions="Remove a Voice Channel from an RPG Group",
+    brief="Remove Voice Channel",
+    aliases=["delvoice"])
+async def removevoicechannel(ctx, key: str, channel: VoiceChannel):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may remove Channels from the Group."%(key))
+        return
+
+    await channel.delete()
+    
+    await ctx.send("Voice Channel %s Removed from %s Group."%(channel.name, key))
 
 @client.event
 async def on_ready():
