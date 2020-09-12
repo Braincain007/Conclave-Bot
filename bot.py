@@ -23,9 +23,9 @@ GROUP_TEXT_CHANNEL = "group-%s-text"
 GROUP_VOICE_CHANNEL = "group-%s-voice"
 GROUP_CATEGORY = "GROUPS"
 
-@client.command(name='creategroup',
-    descriptions='Creates a Private RPG Group with a Text+Voice Channel',
-    brief='Create Group')
+@client.command(name="creategroup",
+    descriptions="Creates a Private RPG Group with a Text+Voice Channel",
+    brief="Create Group")
 async def creategroup(ctx):
     while True:
         # Recreate Key until we know it doesn't exist already
@@ -78,9 +78,9 @@ async def deletegroup(ctx, key: str):
     await ctx.send("%s Group Deleted."%(key))
 
 
-@client.command(name='addplayer',
-    descriptions='Give a User the Player Role for an RPG Group',
-    brief='Add Player to Group')
+@client.command(name="addplayer",
+    descriptions="Give a User the Player Role for an RPG Group",
+    brief="Add Player to Group")
 async def addplayer(ctx, key: str, user: Member):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
@@ -92,9 +92,9 @@ async def addplayer(ctx, key: str, user: Member):
     await ctx.send("Player %s Added to %s Group!"%(user.name, key))
 
 
-@client.command(name='removeplayer',
-    descriptions='Remove the Player Role for an RPG Group from a User',
-    brief='Remove Player from Group')
+@client.command(name="removeplayer",
+    descriptions="Remove the Player Role for an RPG Group from a User",
+    brief="Remove Player from Group")
 async def removeplayer(ctx, key: str, user: Member):
     if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
