@@ -13,88 +13,94 @@ import keyboard as k
 import datetime
 import string
 
+# Local secret file
 import secret
 
-BOT_PREFIX = ("c?", "c!", "C!", "C?")
-
 TOKEN = secret.DISCORD_TOKEN
-
 #Get at discordapp.com/developers/applications/me
 
+BOT_PREFIX = ("c?", "c!", "C!", "C?")
 client = Bot(command_prefix=BOT_PREFIX)
 
+GROUP_GM_ROLE = "group-%s-gm"
+GROUP_PLAYER_ROLE = "group-%s-player"
+GROUP_TEXT_CHANNEL = "group-%s-text"
+GROUP_VOICE_CHANNEL = "group-%s-voice"
+GROUP_CATEGORY = "GROUPS"
 
-@client.command(name='cgroup',
-                descriptions='creates a private voice channel and text channel',
-                brief='Creates groups')
-async def cgroup(ctx):
-    string.ascii_letters
-    key = "".join(random.choice(str(string.ascii_lowercase)+str(string.digits)) for i in range(6))
-    gm_role = await ctx.guild.create_role(name=('group-'+str(key)+'-gm'))
+@client.command(name='creategroup',
+    descriptions='Creates a Private RPG Group with a Text+Voice Channel',
+    brief='Create Group')
+async def creategroup(ctx):
+    while True:
+        # Recreate Key until we know it doesn't exist already
+        key = str("".join(random.choice(str(string.ascii_lowercase)+str(string.digits)) for i in range(6)))
+        if utils.get(ctx.guild.roles, name=GROUP_GM_ROLE%(key)) == None:
+            break
     
-    player_role = await ctx.guild.create_role(name=('group-'+str(key)+'-player'))
-    text_channel = await ctx.guild.create_text_channel(name=('group-'+str(key)+'-text_channel'))
-    await text_channel.set_permissions(ctx.guild.default_role,view_channel=False)
-    await text_channel.set_permissions(gm_role,
-                                    view_channel=True,
-                                    read_messages=True,
-                                    send_messages=True)
-    await text_channel.set_permissions(player_role,
-                                    view_channel=True,
-                                    read_messages=True,
-                                    send_messages=True)
+    group_category = utils.get(ctx.guild.categories, name=GROUP_CATEGORY)
+    group_gm_role = await ctx.guild.create_role(name=GROUP_GM_ROLE%(key))
+    group_player_role = await ctx.guild.create_role(name=GROUP_PLAYER_ROLE%(key))
+
+    group_overwrites = {
+        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        group_gm_role: discord.PermissionOverwrite(read_messages=True),
+        group_player_role: discord.PermissionOverwrite(read_messages=True)
+    }
+
+    group_text_channel = await ctx.guild.create_text_channel(
+        name=GROUP_TEXT_CHANNEL%(key), 
+        overwrites=group_overwrites, 
+        category=group_category)
+    group_voice_channel = await ctx.guild.create_voice_channel(
+        name=GROUP_VOICE_CHANNEL%(key), 
+        overwrites=group_overwrites, 
+        category=group_category)
     
-    voice_channel = await ctx.guild.create_voice_channel(name=('group-'+str(key)+'-voice_channel'))
-    await voice_channel.set_permissions(ctx.guild.default_role,view_channel=False)
-    await voice_channel.set_permissions(gm_role,
-                                    view_channel=True,
-                                    read_messages=True,
-                                    send_messages=True)
-    await voice_channel.set_permissions(player_role,
-                                    view_channel=True,
-                                    read_messages=True,
-                                    send_messages=True)
-    group = utils.get(ctx.guild.categories, name='Groups')
-    
-    await text_channel.edit(category=group)
-    await voice_channel.edit(category=group)
     await ctx.author.add_roles(gm_role)
-    await ctx.send('Group created!')
-    
+
+    await ctx.send("%s Group Created!"%(key))
 
 
+@client.command(name='addplayer',
+    descriptions='Give a User the Player Role for an RPG Group',
+    brief='Add Player to Group')
+async def addplayer(ctx, key: str, user: discord.Member):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.server_premission.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
+        return
 
-@client.command(name='groupadd',
-                descriptions='join a private voice channel and text channel',
-                brief='join groups')
-async def groupadd(ctx,key, *, user):
-    if utils.get(ctx.message.author.roles, name='group-'+str(key)+'-gm')==('group-'+str(key)+'-gm'):
-        player_role = utils.get(ctx.guild.roles, name=('group-'+str(key)+'-player'))
-        await ctx.message.mentions[0].add_roles(player_role)
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+    await user.add_roles(group_player_role)
 
-        await ctx.send('Player added!')
+    await ctx.send("Player %s Added to %s Group!"%(user.name, key))
 
 
-@client.command(name='delgroup',
-                descriptions='deletes a private voice channel and text channel',
-                brief='deletes groups')
-async def delgroup(ctx, key):
-   if str(utils.get(ctx.message.author.roles, name='group-'+str(key)+'-gm'))==('group-'+str(key)+'-gm'):
-         text_channel = utils.get(ctx.guild.text_channels, name=('group-'+str(key)+'-text_channel'))
-         voice_channel = utils.get(ctx.guild.voice_channels, name=('group-'+str(key)+'-voice_channel'))
-         gm_role = utils.get(ctx.guild.roles, name=('group-'+str(key)+'-gm'))
-         player_role = utils.get(ctx.guild.roles, name=('group-'+str(key)+'-player'))
-         await text_channel.delete()
-         await voice_channel.delete()
-         await player_role.delete()
-         await gm_role.delete()
+@client.command(name="deletegroup",
+    descriptions="Deletes the RPG Group, and Accompanying Roles and Channels",
+    brief="Delete Group")
+async def deletegroup(ctx, key: str):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.server_premission.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Delete the Group."%(key))
+        return
 
-    
+    group_gm_role = utils.get(ctx.guild.roles, name=GROUP_GM_ROLE%(key))
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+    group_text_channel = utils.get(ctx.guild.text_channels, name=GROUP_TEXT_CHANNEL%(key))
+    group_voice_channel = utils.get(ctx.guild.voice_channels, name=GROUP_VOICE_CHANNEL%(key))
+
+    await group_gm_role.delete()
+    await group_player_role.delete()
+    await group_text_channel.delete()
+    await group_voice_channel.delete()
+
+    await ctx.send("%s Group Deleted!"%(key))
+
 
 @client.event
 async def on_ready():
     await client.change_presence(activity=Game(name="with c!"))
-    print("Logged in as " + client.user.name)
+    print("Logged in as %s"%client.user.name)
 
 async def list_servers():
     await client.wait_until_ready()
