@@ -56,6 +56,8 @@ async def creategroup(ctx):
         overwrites=group_overwrites, 
         category=group_category)
     
+    
+    await ctx.me.add_roles(group_gm_role)
     await ctx.author.add_roles(group_gm_role)
 
     await ctx.send("%s Group Created!"%(key))
