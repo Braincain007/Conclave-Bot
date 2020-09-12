@@ -52,7 +52,13 @@ async def creategroup(ctx):
             break
     
     group_category = utils.get(ctx.guild.categories, name=GROUP_CATEGORY)
+    if group_category == None:
+        group_category = await ctx.guild.create_category(name=GROUP_CATEGORY)
+
     group_bot_role = utils.get(ctx.guild.roles, name=GROUP_BOT_ROLE)
+    if group_bot_role == None:
+        group_bot_role = await ctx.guild.create_role(name=GROUP_BOT_ROLE)
+
     group_gm_role = await ctx.guild.create_role(name=GROUP_GM_ROLE%(key))
     group_player_role = await ctx.guild.create_role(name=GROUP_PLAYER_ROLE%(key))
 
@@ -89,13 +95,15 @@ async def deletegroup(ctx, key: str):
 
     group_gm_role = utils.get(ctx.guild.roles, name=GROUP_GM_ROLE%(key))
     group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
-    group_text_channel = utils.get(ctx.guild.text_channels, name=GROUP_TEXT_CHANNEL%(key))
-    group_voice_channel = utils.get(ctx.guild.voice_channels, name=GROUP_VOICE_CHANNEL%(key))
+    group_text_channels = [channel for channel in ctx.guild.text_channels if key in channel.name]
+    group_voice_channels = [channel for channel in ctx.guild.voice_channels if key in channel.name]
 
     await group_gm_role.delete()
     await group_player_role.delete()
-    await group_text_channel.delete()
-    await group_voice_channel.delete()
+    for channel in group_text_channels:
+        await channel.delete()
+    for channel in group_voice_channels:
+        await channel.delete()
 
     await ctx.send("%s Group Deleted."%(key))
 
