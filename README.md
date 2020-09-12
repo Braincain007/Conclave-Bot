@@ -14,7 +14,7 @@ Allow RPG Groups within Conclave to have a private space to run their RPG Sessio
 ### Prerequisite
 * Python3.8
 * pip
-* virtualen (optional)
+* virtualenv (optional)
 * Discord Application with Bot
 
 ### Install Dependancies
