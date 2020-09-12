@@ -44,6 +44,7 @@ async def creategroup(ctx):
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
         group_gm_role: PermissionOverwrite(read_messages=True),
         group_player_role: PermissionOverwrite(read_messages=True)
+        client.user: PermissionOverwrite(read_messages=True)
     }
 
     group_text_channel = await ctx.guild.create_text_channel(
