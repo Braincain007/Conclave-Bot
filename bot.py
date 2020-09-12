@@ -1,5 +1,7 @@
 #!/bin/env python3.8
 
+#Co-created by Ethan and Gustave
+
 import string
 import random
 import asyncio
