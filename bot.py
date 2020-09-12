@@ -1,6 +1,20 @@
-#!/bin/env python3.8
+#!/usr/bin/env python3.8
 
-#Co-created by Ethan and Gustave
+# Conclave Bot - Discord.py Bot used to create and administrate private RPG group channels+roles
+# Copyright (C) 2020 Ethan Dunning and Gustave Michel III
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import string
 import random
@@ -24,6 +38,7 @@ GROUP_PLAYER_ROLE = "group-%s-player"
 GROUP_TEXT_CHANNEL = "group-%s-text"
 GROUP_VOICE_CHANNEL = "group-%s-voice"
 GROUP_CATEGORY = "GROUPS"
+GROUP_BOT_ROLE = "group-bot"
 
 @client.command(name="creategroup",
     descriptions="Creates a Private RPG Group with a Text+Voice Channel",
@@ -37,6 +52,7 @@ async def creategroup(ctx):
             break
     
     group_category = utils.get(ctx.guild.categories, name=GROUP_CATEGORY)
+    group_bot_role = utils.get(ctx.guild.roles, name=GROUP_BOT_ROLE)
     group_gm_role = await ctx.guild.create_role(name=GROUP_GM_ROLE%(key))
     group_player_role = await ctx.guild.create_role(name=GROUP_PLAYER_ROLE%(key))
 
@@ -44,6 +60,7 @@ async def creategroup(ctx):
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
         group_gm_role: PermissionOverwrite(read_messages=True),
         group_player_role: PermissionOverwrite(read_messages=True),
+        group_bot_role: PermissionOverwrite(read_messages=True),
         client.user: PermissionOverwrite(read_messages=True)
     }
 
