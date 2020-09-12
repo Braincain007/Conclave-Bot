@@ -43,9 +43,9 @@ async def creategroup(ctx):
     group_player_role = await ctx.guild.create_role(name=GROUP_PLAYER_ROLE%(key))
 
     group_overwrites = {
-        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-        group_gm_role: discord.PermissionOverwrite(read_messages=True),
-        group_player_role: discord.PermissionOverwrite(read_messages=True)
+        ctx.guild.default_role: PermissionOverwrite(read_messages=False),
+        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_player_role: PermissionOverwrite(read_messages=True)
     }
 
     group_text_channel = await ctx.guild.create_text_channel(
@@ -57,30 +57,16 @@ async def creategroup(ctx):
         overwrites=group_overwrites, 
         category=group_category)
     
-    await ctx.author.add_roles(gm_role)
+    await ctx.author.add_roles(group_gm_role)
 
     await ctx.send("%s Group Created!"%(key))
-
-
-@client.command(name='addplayer',
-    descriptions='Give a User the Player Role for an RPG Group',
-    brief='Add Player to Group')
-async def addplayer(ctx, key: str, user: discord.Member):
-    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.server_premission.administrator == False:
-        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
-        return
-
-    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
-    await user.add_roles(group_player_role)
-
-    await ctx.send("Player %s Added to %s Group!"%(user.name, key))
 
 
 @client.command(name="deletegroup",
     descriptions="Deletes the RPG Group, and Accompanying Roles and Channels",
     brief="Delete Group")
 async def deletegroup(ctx, key: str):
-    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.server_premission.administrator == False:
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
         await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Delete the Group."%(key))
         return
 
@@ -94,7 +80,35 @@ async def deletegroup(ctx, key: str):
     await group_text_channel.delete()
     await group_voice_channel.delete()
 
-    await ctx.send("%s Group Deleted!"%(key))
+    await ctx.send("%s Group Deleted."%(key))
+
+
+@client.command(name='addplayer',
+    descriptions='Give a User the Player Role for an RPG Group',
+    brief='Add Player to Group')
+async def addplayer(ctx, key: str, user: Member):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
+        return
+
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+    await user.add_roles(group_player_role)
+
+    await ctx.send("Player %s Added to %s Group!"%(user.name, key))
+
+
+@client.command(name='removeplayer',
+    descriptions='Remove the Player Role for an RPG Group from a User',
+    brief='Remove Player from Group')
+async def removeplayer(ctx, key: str, user: Member):
+    if utils.get(ctx.message.author.roles, name=GROUP_GM_ROLE%(key)) == None and ctx.message.author.guild_permissions.administrator == False:
+        await ctx.send("You are not a GM for the %s Group. Only a Group's GM may Add a Member to the Group."%(key))
+        return
+
+    group_player_role = utils.get(ctx.guild.roles, name=GROUP_PLAYER_ROLE%(key))
+    await user.remove_roles(group_player_role)
+
+    await ctx.send("Player %s Removed from %s Group."%(user.name, key))
 
 
 @client.event
