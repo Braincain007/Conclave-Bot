@@ -43,7 +43,7 @@ async def creategroup(ctx):
     group_overwrites = {
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
         group_gm_role: PermissionOverwrite(read_messages=True),
-        group_player_role: PermissionOverwrite(read_messages=True)
+        group_player_role: PermissionOverwrite(read_messages=True),
         client.user: PermissionOverwrite(read_messages=True)
     }
 
@@ -56,7 +56,6 @@ async def creategroup(ctx):
         overwrites=group_overwrites, 
         category=group_category)
     
-    await ctx.self.add_roles(group_gm_role)
     await ctx.author.add_roles(group_gm_role)
 
     await ctx.send("%s Group Created!"%(key))
