@@ -73,11 +73,11 @@ async def groupadd(ctx,key, *, user):
         await ctx.send('Player added!')
 
 
-'''@client.command(name='delgroup',
+@client.command(name='delgroup',
                 descriptions='deletes a private voice channel and text channel',
                 brief='deletes groups')
 async def delgroup(ctx, key):
-     if utils.get(ctx.message.author.roles, name='group-'+str(key)+'-gm')==('group-'+str(key)+'-gm'):
+   if str(utils.get(ctx.message.author.roles, name='group-'+str(key)+'-gm'))==('group-'+str(key)+'-gm'):
          text_channel = utils.get(ctx.guild.text_channels, name=('group-'+str(key)+'-text_channel'))
          voice_channel = utils.get(ctx.guild.voice_channels, name=('group-'+str(key)+'-voice_channel'))
          gm_role = utils.get(ctx.guild.roles, name=('group-'+str(key)+'-gm'))
@@ -85,7 +85,7 @@ async def delgroup(ctx, key):
          await text_channel.delete()
          await voice_channel.delete()
          await player_role.delete()
-         await gm_role.delete()'''
+         await gm_role.delete()
 
     
 
