@@ -64,7 +64,7 @@ async def creategroup(ctx):
 
     group_overwrites = {
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
-        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_gm_role: PermissionOverwrite(read_messages=True, mention_everyone=True),
         group_player_role: PermissionOverwrite(read_messages=True),
         group_bot_role: PermissionOverwrite(read_messages=True),
         client.user: PermissionOverwrite(read_messages=True)
@@ -159,7 +159,7 @@ async def addtextchannel(ctx, key: str, name: str):
 
     group_overwrites = {
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
-        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_gm_role: PermissionOverwrite(read_messages=True, mention_everyone=True),
         group_player_role: PermissionOverwrite(read_messages=True),
         group_bot_role: PermissionOverwrite(read_messages=True),
         client.user: PermissionOverwrite(read_messages=True)
@@ -207,7 +207,7 @@ async def addvoicechannel(ctx, key: str, name: str):
 
     group_overwrites = {
         ctx.guild.default_role: PermissionOverwrite(read_messages=False),
-        group_gm_role: PermissionOverwrite(read_messages=True),
+        group_gm_role: PermissionOverwrite(read_messages=True, mention_everyone=True),
         group_player_role: PermissionOverwrite(read_messages=True),
         group_bot_role: PermissionOverwrite(read_messages=True),
         client.user: PermissionOverwrite(read_messages=True)
